@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Only authenticated users who belong to the flat can read/write utensil icons
+    match /flats/{flatId}/utensils/{file} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can read/write their own profile
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /flats/{flatId} {
+      function isMember() {
+        return request.auth != null && (
+          ('memberUids' in resource.data && request.auth.uid in resource.data.memberUids) ||
+          (!('memberUids' in resource.data) && request.auth.uid == resource.data.adminUid)
+        );
+      }
+
+      // Any signed-in user can query flats (needed to look up by invite code)
+      allow list: if request.auth != null;
+      // Only members can read a specific flat document
+      allow get: if isMember();
+      // Any signed-in user can create a flat or update (to join)
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.adminUid;
+
+      // Sessions: only flat members
+      match /sessions/{sessionId} {
+        allow read, write: if request.auth != null && (
+          ('memberUids' in get(/databases/$(database)/documents/flats/$(flatId)).data &&
+            request.auth.uid in get(/databases/$(database)/documents/flats/$(flatId)).data.memberUids) ||
+          (!('memberUids' in get(/databases/$(database)/documents/flats/$(flatId)).data) &&
+            request.auth.uid == get(/databases/$(database)/documents/flats/$(flatId)).data.adminUid)
+        );
+      }
+    }
+  }
+}
