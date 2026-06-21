@@ -186,6 +186,15 @@ export default function Landing() {
           </div>
         ))}
       </div>
+
+      <footer className="mt-8 pb-6 text-center text-xs text-gray-400 dark:text-gray-600">
+        <span
+          title="vorayash9028@gmail.com"
+          className="cursor-default hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+        >
+          Developed by Yash Vora
+        </span>
+      </footer>
     </div>
   )
 }

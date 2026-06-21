@@ -1,4 +1,5 @@
 import EffortBar from '../components/EffortBar'
+import Avatar from '../components/Avatar'
 
 export default function BalanceTab({ flat, sessions }) {
   const members = flat?.members || []
@@ -36,20 +37,16 @@ export default function BalanceTab({ flat, sessions }) {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4 text-center">
-          <div className="mb-1">
-            {least?.photoURL
-              ? <img src={least.photoURL} alt="" className="w-10 h-10 rounded-full mx-auto" referrerPolicy="no-referrer" />
-              : <span className="text-2xl">😌</span>}
+          <div className="mb-1 flex justify-center">
+            <Avatar name={least?.name} photoURL={least?.photoURL} size={10} />
           </div>
           <div className="text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide">Lightest load</div>
           <div className="font-bold text-gray-800 dark:text-gray-200 mt-0.5">{least?.name}</div>
           <div className="text-green-600 dark:text-green-400 font-semibold">{totals[least?.uid] || 0}</div>
         </div>
         <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4 text-center">
-          <div className="mb-1">
-            {most?.photoURL
-              ? <img src={most.photoURL} alt="" className="w-10 h-10 rounded-full mx-auto" referrerPolicy="no-referrer" />
-              : <span className="text-2xl">💪</span>}
+          <div className="mb-1 flex justify-center">
+            <Avatar name={most?.name} photoURL={most?.photoURL} size={10} />
           </div>
           <div className="text-xs text-orange-700 dark:text-orange-400 font-semibold uppercase tracking-wide">Heaviest load</div>
           <div className="font-bold text-gray-800 dark:text-gray-200 mt-0.5">{most?.name}</div>

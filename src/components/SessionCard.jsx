@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import Avatar from './Avatar'
+import { useConfirm } from '../hooks/useConfirm'
 
 function formatDate(ts) {
   if (!ts) return ''
@@ -6,10 +8,19 @@ function formatDate(ts) {
   return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default function SessionCard({ session }) {
+export default function SessionCard({ session, onDelete }) {
   const [open, setOpen] = useState(false)
+  const { confirm, dialog } = useConfirm()
+
+  async function handleDelete(e) {
+    e.stopPropagation()
+    if (await confirm(`Delete "${session.label}"? This cannot be undone.`, { confirmLabel: 'Delete', danger: true }))
+      onDelete()
+  }
+
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+      {dialog}
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -18,7 +29,17 @@ export default function SessionCard({ session }) {
           <div className="font-medium text-gray-900 dark:text-white text-sm">{session.label}</div>
           <div className="text-xs text-gray-400 dark:text-gray-500">{formatDate(session.createdAt)} · Total effort: {session.totalEffort}</div>
         </div>
-        <span className="text-gray-400 text-sm">{open ? '▲' : '▼'}</span>
+        <div className="flex items-center gap-2">
+          {onDelete && (
+            <span
+              onClick={handleDelete}
+              className="text-xs text-red-400 hover:text-red-500 px-1"
+            >
+              Delete
+            </span>
+          )}
+          <span className="text-gray-400 text-sm">{open ? '▲' : '▼'}</span>
+        </div>
       </button>
 
       {open && (
@@ -26,7 +47,7 @@ export default function SessionCard({ session }) {
           {session.assignments?.map(a => (
             <div key={a.uid} className="px-4 py-3">
               <div className="flex items-center gap-2 mb-1.5">
-                {a.photoURL && <img src={a.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />}
+                <Avatar name={a.name} photoURL={a.photoURL} size={6} />
                 <span className="font-medium text-sm text-gray-800 dark:text-gray-200">{a.name}</span>
                 <span className="ml-auto text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">effort {a.sessionEffort}</span>
               </div>

@@ -1,5 +1,5 @@
 import {
-  doc, collection, addDoc, updateDoc,
+  doc, collection, addDoc, updateDoc, deleteDoc,
   getDoc, getDocs, query, where, arrayUnion, arrayRemove,
   onSnapshot, serverTimestamp, orderBy,
 } from 'firebase/firestore'
@@ -57,6 +57,12 @@ export async function getUserFlats(uid) {
   return snap.data().flatIds || []
 }
 
+export async function getFlatsBasicInfo(ids) {
+  if (!ids.length) return []
+  const snaps = await Promise.all(ids.map(id => getDoc(doc(db, 'flats', id))))
+  return snaps.filter(s => s.exists()).map(s => ({ id: s.id, name: s.data().name }))
+}
+
 export function subscribeToFlat(flatId, cb) {
   return onSnapshot(doc(db, 'flats', flatId), snap => {
     if (snap.exists()) cb({ id: snap.id, ...snap.data() })
@@ -111,6 +117,15 @@ export async function saveSession(flatId, label, assignments) {
     assignments: stripUndefined(assignments),
     totalEffort,
   })
+}
+
+export async function deleteSession(flatId, sessionId) {
+  await deleteDoc(doc(db, 'flats', flatId, 'sessions', sessionId))
+}
+
+export async function deleteAllSessions(flatId) {
+  const snap = await getDocs(collection(db, 'flats', flatId, 'sessions'))
+  await Promise.all(snap.docs.map(d => deleteDoc(d.ref)))
 }
 
 export function subscribeToSessions(flatId, cb) {

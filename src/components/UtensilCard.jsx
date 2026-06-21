@@ -1,4 +1,4 @@
-export default function UtensilCard({ utensil, selected, effort, onToggle, onEffortChange }) {
+export default function UtensilCard({ utensil, selected, onToggle }) {
   return (
     <div
       onClick={onToggle}
@@ -18,16 +18,8 @@ export default function UtensilCard({ utensil, selected, effort, onToggle, onEff
       <div className="text-center text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{utensil.name}</div>
 
       {selected && (
-        <div className="mt-2" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-            <span>Effort</span>
-            <span className="font-semibold text-blue-600 dark:text-blue-400">{effort}</span>
-          </div>
-          <input
-            type="range" min={1} max={100} value={effort}
-            onChange={e => onEffortChange(Number(e.target.value))}
-            className="w-full accent-blue-500"
-          />
+        <div className="mt-1 text-center text-xs text-blue-500 dark:text-blue-400 font-medium">
+          effort {utensil.defaultEffort}
         </div>
       )}
 

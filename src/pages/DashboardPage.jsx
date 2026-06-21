@@ -7,7 +7,7 @@ import SettingsTab from './SettingsTab'
 import { useFlat } from '../hooks/useFlat'
 import { useSessions } from '../hooks/useSessions'
 
-export default function DashboardPage({ flatId, onLeft }) {
+export default function DashboardPage({ flatId, flatIds, onLeft, onGroupAdded, onGroupSwitch }) {
   const [activeTab, setActiveTab] = useState('session')
   const { flat, loading: flatLoading } = useFlat(flatId, onLeft)
   const { sessions, loading: sessionsLoading } = useSessions(flatId)
@@ -21,11 +21,12 @@ export default function DashboardPage({ flatId, onLeft }) {
   }
 
   return (
-    <Layout flat={flat} activeTab={activeTab} setActiveTab={setActiveTab}>
-      {activeTab === 'session' && <NewSessionTab flat={flat} sessions={sessions} />}
-      {activeTab === 'history' && <HistoryTab flat={flat} sessions={sessions} />}
-      {activeTab === 'balance' && <BalanceTab flat={flat} sessions={sessions} />}
-      {activeTab === 'settings' && <SettingsTab flat={flat} onLeft={onLeft} />}
+    <Layout flat={flat} activeTab={activeTab} setActiveTab={setActiveTab}
+      flatIds={flatIds} onGroupAdded={onGroupAdded} onGroupSwitch={onGroupSwitch}>
+      <div style={{ display: activeTab === 'session'  ? '' : 'none' }}><NewSessionTab flat={flat} sessions={sessions} /></div>
+      <div style={{ display: activeTab === 'history'  ? '' : 'none' }}><HistoryTab flat={flat} sessions={sessions} /></div>
+      <div style={{ display: activeTab === 'balance'  ? '' : 'none' }}><BalanceTab flat={flat} sessions={sessions} /></div>
+      <div style={{ display: activeTab === 'settings' ? '' : 'none' }}><SettingsTab flat={flat} onLeft={onLeft} /></div>
     </Layout>
   )
 }

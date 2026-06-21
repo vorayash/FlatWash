@@ -5,22 +5,35 @@ import Landing from './pages/Landing'
 import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
 
-// Read ?join=CODE from the URL once on load
 const urlJoinCode = new URLSearchParams(window.location.search).get('join') || null
 
 export default function App() {
   const { user, loading: authLoading } = useAuth()
-  const [flatId, setFlatId] = useState(null)
+  const [flatIds, setFlatIds] = useState([])
+  const [activeFlatId, setActiveFlatId] = useState(null)
   const [checking, setChecking] = useState(false)
 
   useEffect(() => {
-    if (!user) { setFlatId(null); return }
+    if (!user) { setFlatIds([]); setActiveFlatId(null); return }
     setChecking(true)
     getUserFlats(user.uid).then(ids => {
-      setFlatId(ids[0] || null)
+      setFlatIds(ids)
+      setActiveFlatId(ids[0] || null)
       setChecking(false)
     })
   }, [user?.uid])
+
+  function handleGroupAdded(newId) {
+    window.history.replaceState({}, '', window.location.pathname)
+    setFlatIds(prev => prev.includes(newId) ? prev : [...prev, newId])
+    setActiveFlatId(newId)
+  }
+
+  function handleLeft() {
+    const remaining = flatIds.filter(id => id !== activeFlatId)
+    setFlatIds(remaining)
+    setActiveFlatId(remaining[0] || null)
+  }
 
   if (authLoading || checking) {
     return (
@@ -32,18 +45,22 @@ export default function App() {
 
   if (!user) return <Landing />
 
-  if (!flatId) {
+  if (!activeFlatId) {
     return (
       <OnboardingPage
-        onJoined={id => {
-          // Clean up the ?join= param from the URL without a page reload
-          window.history.replaceState({}, '', window.location.pathname)
-          setFlatId(id)
-        }}
+        onJoined={handleGroupAdded}
         prefillCode={urlJoinCode}
       />
     )
   }
 
-  return <DashboardPage flatId={flatId} onLeft={() => setFlatId(null)} />
+  return (
+    <DashboardPage
+      flatId={activeFlatId}
+      flatIds={flatIds}
+      onLeft={handleLeft}
+      onGroupAdded={handleGroupAdded}
+      onGroupSwitch={setActiveFlatId}
+    />
+  )
 }
